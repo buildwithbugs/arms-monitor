@@ -1,13 +1,14 @@
 import os
 
+# ARMS
+ARMS_URL = "https://arms.sse.saveetha.com/"
+ARMS_USERNAME = os.getenv("ARMS_USERNAME")
+ARMS_PASSWORD = os.getenv("ARMS_PASSWORD")
+
 # Telegram
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
-TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-# ARMS Portal
-ARMS_URL = "https://arms.sse.saveetha.com"
-ARMS_USERNAME = os.environ.get("ARMS_USERNAME", "")
-ARMS_PASSWORD = os.environ.get("ARMS_PASSWORD", "")
-
-# Check interval
-CHECK_INTERVAL = 900  # 15 minutes
+# Monitor
+CHECK_INTERVAL = 5 * 60
+DATABASE_NAME = "results.db"

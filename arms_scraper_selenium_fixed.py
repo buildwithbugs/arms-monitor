@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from config import ARMS_URL, ARMS_USERID, ARMS_PASSWORD
+from config import ARMS_URL, ARMS_USERNAME, ARMS_PASSWORD
 
 MYCOURSE_URL = "https://arms.sse.saveetha.com/StudentPortal/MyCourse.aspx"
 
@@ -33,7 +33,7 @@ class ARMSScraper:
             print(f"[*] Logging in...")
             driver.get(ARMS_URL)
             time.sleep(3)
-            wait.until(EC.presence_of_element_located((By.NAME, "txtusername"))).send_keys(ARMS_USERID)
+            wait.until(EC.presence_of_element_located((By.NAME, "txtusername"))).send_keys(ARMS_USERNAME)
             driver.find_element(By.NAME, "txtpassword").send_keys(ARMS_PASSWORD)
             driver.find_element(By.NAME, "btnlogin").click()
             time.sleep(4)
