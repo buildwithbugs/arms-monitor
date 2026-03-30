@@ -30,11 +30,6 @@ class ARMSMonitor:
         if not self.notifier.test_connection():
             print("[!] Telegram not connected — check your token/chat ID")
 
-        # 🔥 FORCE TEST (temporary)
-        print("DEBUG → Sending test Telegram...")
-        self.notifier.send_notification(
-            "TEST101", "Test Subject", "A", "PASS", "Mar 2026"
-        )
 
         print(f"[{self._ts()}] ── Checking results ──")
 
