@@ -6,10 +6,11 @@ ARMS_USERID  = "192511060"
 ARMS_PASSWORD = "mano"
 
 # ─────────────────────────────────────────
-#  TELEGRAM BOT SETTINGS
+#  TELEGRAM BOT SETTINGS (from environment)
 # ─────────────────────────────────────────
-TELEGRAM_TOKEN = "8261851790:AAFXymHac_VlUIB8IPJGeeLD-zolJWnfpD8"
-TELEGRAM_CHAT_ID   = "6529331025"
+import os
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 
 # ─────────────────────────────────────────
 #  MONITOR SETTINGS
