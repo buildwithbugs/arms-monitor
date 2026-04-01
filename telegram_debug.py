@@ -89,5 +89,5 @@ if __name__ == "__main__":
         print("   1. TELEGRAM_TOKEN from BotFather")
         print("   2. TELEGRAM_CHAT_ID (get from @userinfobot or your bot)")
         print("   3. Bot added to your Telegram channel/group")
-        #print("   4. Internet connection")
+        print("   4. Internet connection")
         
