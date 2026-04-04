@@ -26,13 +26,31 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Test environment variables
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ARMS_USERNAME: ${{ secrets.ARMS_USERNAME }}
+          ARMS_PASSWORD: ${{ secrets.ARMS_PASSWORD }}
+        run: python test_env.py
+
       - name: Run monitor
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           ARMS_USERNAME: ${{ secrets.ARMS_USERNAME }}
           ARMS_PASSWORD: ${{ secrets.ARMS_PASSWORD }}
-        run: python monitor_selenium.py
+        run: |
+          echo "Starting ARMS Monitor..."
+          python monitor_selenium.py 2>&1 | tee monitor.log
+          echo "Monitor finished with exit code: $?"
+
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: monitor-logs
+          path: monitor.log
 
       - name: Save database to repo
         run: |
