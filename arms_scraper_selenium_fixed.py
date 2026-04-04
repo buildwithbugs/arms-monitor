@@ -31,6 +31,14 @@ class ARMSScraper:
         wait = WebDriverWait(driver, 20)
         try:
             print(f"[*] Logging in...")
+            print(f"DEBUG → Username: '{ARMS_USERID}'")
+            print(f"DEBUG → Password: '{ARMS_PASSWORD}' (length: {len(ARMS_PASSWORD)})")
+            print(f"DEBUG → URL: {ARMS_URL}")
+            
+            if not ARMS_USERID or not ARMS_PASSWORD:
+                print("[✗] Missing credentials!")
+                return False
+                
             driver.get(ARMS_URL)
             time.sleep(3)
             wait.until(EC.presence_of_element_located((By.NAME, "txtusername"))).send_keys(ARMS_USERID)
