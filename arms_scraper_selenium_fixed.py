@@ -39,12 +39,31 @@ class ARMSScraper:
                 print("[✗] Missing credentials!")
                 return False
                 
+            print(f"[*] Navigating to {ARMS_URL}")
             driver.get(ARMS_URL)
             time.sleep(3)
-            wait.until(EC.presence_of_element_located((By.NAME, "txtusername"))).send_keys(ARMS_USERID)
-            driver.find_element(By.NAME, "txtpassword").send_keys(ARMS_PASSWORD)
-            driver.find_element(By.NAME, "btnlogin").click()
+            
+            print(f"[*] Looking for login form...")
+            username_field = wait.until(EC.presence_of_element_located((By.NAME, "txtusername")))
+            password_field = driver.find_element(By.NAME, "txtpassword")
+            login_button = driver.find_element(By.NAME, "btnlogin")
+            
+            print(f"[*] Filling credentials...")
+            username_field.send_keys(ARMS_USERID)
+            password_field.send_keys(ARMS_PASSWORD)
+            
+            print(f"[*] Clicking login button...")
+            login_button.click()
             time.sleep(4)
+            
+            # Check if login was successful by looking for dashboard elements
+            current_url = driver.current_url
+            print(f"DEBUG → Current URL after login: {current_url}")
+            
+            if "login" in current_url.lower() or "error" in current_url.lower():
+                print("[✗] Login failed - still on login page or error page")
+                return False
+                
             print("[✓] Logged in successfully")
             return True
         except Exception as e:

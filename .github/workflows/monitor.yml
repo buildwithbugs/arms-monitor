@@ -42,7 +42,7 @@ jobs:
           ARMS_PASSWORD: ${{ secrets.ARMS_PASSWORD }}
         run: |
           echo "Starting ARMS Monitor..."
-          python monitor_selenium.py 2>&1 | tee monitor.log
+          python monitor_selenium.py
           echo "Monitor finished with exit code: $?"
 
       - name: Upload logs
