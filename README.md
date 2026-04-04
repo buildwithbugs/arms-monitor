@@ -1,98 +1,127 @@
 \# 🎓 ARMS Portal Monitor
 
+**Automated result monitoring system for Saveetha ARMS Portal that sends instant Telegram notifications when new results are published.**
 
-
-Automated result monitoring system for Saveetha ARMS Portal that sends instant Telegram notifications when new results are published.
+> ⭐ **Star this repo if it helps you stay updated with your results!
 
 
 
 \## 📱 Features
 
+- **🔄 Automatic Monitoring** - Checks ARMS portal every 15 minutes
+- **⚡ Instant Notifications** - Real-time Telegram alerts for new results
+- **🛡️ Smart Deduplication** - Never sends duplicate notifications
+- **☁️ 24/7 Operation** - Runs continuously on GitHub Actions (no laptop needed)
+- **🎯 Zero Maintenance** - Set it once and forget it
+- **📊 Result Tracking** - Maintains history of all your results
+- **🔒 Secure & Private** - All credentials stored in GitHub Secrets
 
 
-\- Monitors ARMS portal every 15 minutes automatically
 
-\- Sends instant Telegram notification when new results are published
+\## 🎯 How It Works
 
-\- Runs 24/7 on GitHub Actions — no laptop required
-
-\- Tracks already-notified results to avoid duplicates
-
-\- Headless Chrome browser automation using Selenium
+1. **Login Automation** - Selenium automatically logs into ARMS portal
+2. **Result Scraping** - Extracts latest results from dashboard
+3. **Change Detection** - Compares with database to find new results
+4. **Instant Alerts** - Sends Telegram notification for new results
+5. **Database Update** - Stores results to prevent duplicate notifications
 
 
 
 \## 🛠️ Tech Stack
 
-
-
-\- Python 3.11
-
-\- Selenium (web scraping)
-
-\- SQLite (result tracking)
-
-\- Telegram Bot API (notifications)
-
-\- GitHub Actions (24/7 scheduling)
+- **Python 3.11** - Core language
+- **Selenium** - Web automation for portal scraping
+- **SQLite** - Local database for result tracking
+- **Telegram Bot API** - Instant notifications
+- **GitHub Actions** - 24/7 cloud deployment
+- **Chrome Headless** - Browser automation
 
 
 
 \## 📂 Project Structure
 
-
-
-Arms\_Monitor/
-
-├── monitor\_selenium.py        # Main entry point
-
-├── arms\_scraper\_selenium\_fixed.py  # Portal scraper
-
-├── telegram\_notifier.py       # Telegram notifications
-
-├── results\_db.py              # Database handler
-
-├── config.py                  # Configuration
-
-├── requirements.txt           # Dependencies
-
-└── .github/
-
-&#x20;   └── workflows/
-
-&#x20;       └── monitor.yml        # GitHub Actions workflow
-
+```
+Arms_Monitor/
+├── monitor_selenium.py           # Main entry point
+├── arms_scraper_selenium_fixed.py  # Portal scraper
+├── telegram_notifier.py         # Telegram notifications
+├── results_db.py               # Database handler
+├── config.py                   # Configuration management
+├── requirements.txt            # Dependencies
+├── .env.example               # Environment template
+├── .github/workflows/monitor.yml  # GitHub Actions workflow
+└── README.md                  # This file
 ```
 
 
 
-\## ⚙️ Setup
+\## 🚀 Quick Start
+
+### For Saveetha Students
+1. **Fork this repository**
+2. **Set up GitHub Secrets** in your fork:
+   - `TELEGRAM_TOKEN` - Get from [@BotFather](https://t.me/BotFather)
+   - `TELEGRAM_CHAT_ID` - Get from [@userinfobot](https://t.me/userinfobot)
+   - `ARMS_USERNAME` - Your student ID (e.g., `192511060`)
+   - `ARMS_PASSWORD` - Your ARMS portal password
+3. **Enable GitHub Actions** in your repository settings
+4. **That's it!** The bot will monitor your results every 15 minutes
+
+### Local Development
+1. Clone the repository
+2. Install dependencies: `pip install -r requirements.txt`
+3. Copy `.env.example` to `.env` and fill in your credentials
+4. Run: `python monitor_selenium.py`
 
 
 
-1\. Clone the repository
+\## ⚙️ Configuration
 
-2\. Add GitHub Secrets:
+### Environment Variables
+Create a `.env` file locally (or use GitHub Secrets for production):
 
-&#x20;  - `TELEGRAM\_TOKEN`
+```bash
+# ARMS Portal Credentials
+ARMS_USERNAME=your_student_id
+ARMS_PASSWORD=your_arms_password
 
-&#x20;  - `TELEGRAM\_CHAT\_ID`
+# Telegram Bot Settings
+TELEGRAM_TOKEN=your_bot_token_here
+TELEGRAM_CHAT_ID=your_chat_id_here
+```
 
-&#x20;  - `ARMS\_USERNAME`
+### Setting up Telegram Bot
+1. Message [@BotFather](https://t.me/BotFather) on Telegram
+2. Send `/newbot` and follow instructions
+3. Copy the bot token
+4. Message your bot to start a chat
+5. Get your chat ID from [@userinfobot](https://t.me/userinfobot)
 
-&#x20;  - `ARMS\_PASSWORD`
+## 🚨 Important Notes
 
-3\. Enable GitHub Actions
+- **Security**: Never commit your `.env` file or share credentials
+- **Frequency**: GitHub Actions runs every 15 minutes (can't be more frequent)
+- **Database**: `results.db` is committed to track results across runs
+- **Compatibility**: Works specifically for Saveetha ARMS Portal
 
-4\. Workflow runs automatically every 15 minutes!
+## 🤝 Contributing
 
+Feel free to:
+- 🐛 Report issues
+- 💡 Suggest features
+- 🔧 Submit pull requests
+- ⭐ Star the repository
 
+## 📄 License
 
-\## 👨‍💻 Developer
+This project is open source. Feel free to fork and modify for your educational institution.
 
+## 👨‍💻 Developer
 
-
-\*\*Manoj M\*\*
-
+**Manoj M**
 Saveetha School of Engineering, SIMATS
 
+---
+
+> 💡 **Tip**: If you're from a different institution, you can adapt the scraper for your portal!
