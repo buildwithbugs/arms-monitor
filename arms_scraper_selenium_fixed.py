@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.core.utils import ChromeType
 from config import ARMS_URL, ARMS_USERID, ARMS_PASSWORD
 
 MYCOURSE_URL = "https://arms.sse.saveetha.com/StudentPortal/MyCourse.aspx"
@@ -24,8 +25,19 @@ class ARMSScraper:
         options.add_argument("--window-size=1920,1080")
         options.add_argument("--log-level=3")
         options.add_argument("--disable-extensions")
-        service = Service(ChromeDriverManager().install())
-        return webdriver.Chrome(service=service, options=options)
+        
+        # Use system ChromeDriver (GitHub Actions has Chrome pre-installed)
+        try:
+            return webdriver.Chrome(options=options)
+        except Exception as e:
+            print(f"[!] ChromeDriver setup error: {e}")
+            # Try with ChromeDriver manager as fallback
+            try:
+                service = Service(ChromeDriverManager().install())
+                return webdriver.Chrome(service=service, options=options)
+            except Exception as e2:
+                print(f"[!] Fallback ChromeDriver error: {e2}")
+                raise
 
     def _login(self, driver):
         wait = WebDriverWait(driver, 20)
