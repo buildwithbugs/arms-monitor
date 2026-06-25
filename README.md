@@ -63,7 +63,7 @@ Arms_Monitor/
 2. **Set up GitHub Secrets** in your fork:
    - `TELEGRAM_TOKEN` - Get from [@BotFather](https://t.me/BotFather)
    - `TELEGRAM_CHAT_ID` - Get from [@userinfobot](https://t.me/userinfobot)
-   - `ARMS_USERNAME` - Your student ID (e.g., `192511060`)
+   - `ARMS_USERNAME` - Your student ID (e.g., `1925110**`)
    - `ARMS_PASSWORD` - Your ARMS portal password
 3. **Enable GitHub Actions** in your repository settings
 4. **That's it!** The bot will monitor your results every 15 minutes
