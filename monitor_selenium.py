@@ -1,15 +1,14 @@
 import sys
 import signal
 from datetime import datetime
-from arms_scraper_selenium_fixed import ARMSScraper
+from vstudy_scraper import AuthenticationRequiredError, VStudyScraper
 from results_db import ResultsDatabase
 from telegram_notifier import TelegramNotifier
 
 
-class ARMSMonitor:
+class VStudyMonitor:
     def __init__(self):
-        
-        self.scraper  = ARMSScraper()
+        self.scraper = VStudyScraper()
         self.database = ResultsDatabase()
         self.notifier = TelegramNotifier()
         signal.signal(signal.SIGINT, self._on_exit)
@@ -23,56 +22,86 @@ class ARMSMonitor:
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def run(self):
-        print("=" * 55)
-        print("   ARMS RESULT MONITOR — TELEGRAM NOTIFICATIONS")
-        print("=" * 55)
+        print("=" * 60)
+        print("   VSTUDY COURSE MONITOR")
+        print("=" * 60)
 
         if not self.notifier.test_connection():
             print("[!] Telegram not connected — check your token/chat ID")
 
+        print(f"[{self._ts()}] [*] Checking course results...")
+        try:
+            results = self.scraper.scrape_results()
+        except AuthenticationRequiredError as exc:
+            print(f"[AUTH REQUIRED] {exc}")
+            if self.database.get_state("auth_warning_sent", "0") != "1":
+                sent = self.notifier.notify_error(
+                    "VStudy needs re-authentication. The monitor will retry automatically, "
+                    "but a valid authenticated Chrome profile must be restored."
+                )
+                if sent:
+                    self.database.set_state("auth_warning_sent", "1")
+            return
+        except Exception as exc:
+            print(f"[✗] Scraping failed: {exc}")
+            self.notifier.notify_error(
+                "VStudy scraping failed. Check browser profile, network, or page availability."
+            )
+            return
 
-        print(f"[{self._ts()}] ── Checking results ──")
-
-        results = self.scraper.scrape_results()
-
-        print("DEBUG → Results fetched:", results)
+        self.database.set_state("auth_warning_sent", "0")
 
         if results is None:
             print("[✗] Scraping failed!")
-            self.notifier.notify_error("Scraping failed. Check credentials or connection.")
+            self.notifier.notify_error("VStudy scraping failed. Check browser profile, network, or page availability.")
+            return
 
-        elif len(results) == 0:
-            print("[*] No results published yet.")
-            # Do not send Telegram notification when no results exist
+        if len(results) == 0:
+            print("[✓] No course results found")
+            print("[✓] No new results")
+            return
 
-        else:
-            new = self.database.find_new_results(results)
+        print(f"[*] Checking database for new results...")
+        new = self.database.find_new_results(results)
 
-            print("DEBUG → New results:", new)
+        if not new:
+            print("[✓] No new results")
+            return
 
-            if new:
-                print(f"[!] {len(new)} NEW result(s) found!")
-                for r in new:
-                    self.database.add_result(r)
+        print(f"[!] {len(new)} NEW result(s) found!")
+        for result in new:
+            self.database.add_result(result)
 
-                    print("DEBUG → Sending Telegram for new result...")
+            sent = self.notifier.send_notification(
+                result.get("course_code", ""),
+                result.get("course_name", ""),
+                result.get("grade", ""),
+                result.get("status", ""),
+                "",
+                result.get("course_type", ""),
+                result.get("course_gpa", ""),
+            )
 
-                    self.notifier.send_notification(
-                        r['course_code'], r['course_name'],
-                        r['grade'], r['status'], r['month_year']
-                    )
+            if not sent:
+                print(f"[!] Telegram notification failed for {result.get('course_code', '')}; skipping DB log for this course")
+                continue
 
-                    self.database.log_notification(
-                        r['course_code'], r['course_name'], r['grade']
-                    )
-            else:
-                print(f"[✓] No new results. ({len(results)} total currently tracked)")
-                print("[*] Skipping Telegram notification until there are new published results.")
+            self.database.log_notification(
+                course_code=result.get("course_code", ""),
+                course_name=result.get("course_name", ""),
+                course_type=result.get("course_type", ""),
+                grade=result.get("grade", ""),
+                course_gpa=result.get("course_gpa", ""),
+                status=result.get("status", ""),
+                month_year=self._ts()[:7],
+                attendance=result.get("attendance", ""),
+                assessments=result.get("assessments", ""),
+                other_requirements=result.get("other_requirements", ""),
+            )
 
-        self.scraper.close()
         print("[*] Done!")
 
 
 if __name__ == "__main__":
-    monitor = ARMSMonitor()
+    monitor = VStudyMonitor()
     monitor.run()

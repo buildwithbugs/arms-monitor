@@ -1,129 +1,95 @@
-\# 🎓 ARMS Portal Monitor
+# VStudy Course Monitor
 
-**Automated result monitoring system for Saveetha ARMS Portal that sends instant Telegram notifications when new results are published.**
+This project monitors the Saveetha VStudy portal, collects the course table, detects new course results by course code, stores the history in SQLite, and sends Telegram notifications for new results.
 
-> ⭐ **Star this repo if it helps you stay updated with your results!
+## Features
 
+- Persistent Chrome profile for manual Google sign-in once
+- VStudy profile page and View Details flow
+- Student Progress filtering for All 17 courses
+- Course extraction and deduplication by course code
+- SQLite result and notification history
+- Telegram notifications for newly detected courses
 
+## Required environment variables
 
-\## 📱 Features
-
-- **🔄 Automatic Monitoring** - Checks ARMS portal every 15 minutes
-- **⚡ Instant Notifications** - Real-time Telegram alerts for new results
-- **🛡️ Smart Deduplication** - Never sends duplicate notifications
-- **☁️ 24/7 Operation** - Runs continuously on GitHub Actions (no laptop needed)
-- **🎯 Zero Maintenance** - Set it once and forget it
-- **📊 Result Tracking** - Maintains history of all your results
-- **🔒 Secure & Private** - All credentials stored in GitHub Secrets
-
-
-
-\## 🎯 How It Works
-
-1. **Login Automation** - Selenium automatically logs into ARMS portal
-2. **Result Scraping** - Extracts latest results from dashboard
-3. **Change Detection** - Compares with database to find new results
-4. **Instant Alerts** - Sends Telegram notification for new results
-5. **Database Update** - Stores results to prevent duplicate notifications
-
-
-
-\## 🛠️ Tech Stack
-
-- **Python 3.11** - Core language
-- **Selenium** - Web automation for portal scraping
-- **SQLite** - Local database for result tracking
-- **Telegram Bot API** - Instant notifications
-- **GitHub Actions** - 24/7 cloud deployment
-- **Chrome Headless** - Browser automation
-
-
-
-\## 📂 Project Structure
-
-```
-Arms_Monitor/
-├── monitor_selenium.py           # Main entry point
-├── arms_scraper_selenium_fixed.py  # Portal scraper
-├── telegram_notifier.py         # Telegram notifications
-├── results_db.py               # Database handler
-├── config.py                   # Configuration management
-├── requirements.txt            # Dependencies
-├── .env.example               # Environment template
-├── .github/workflows/monitor.yml  # GitHub Actions workflow
-└── README.md                  # This file
-```
-
-
-
-\## 🚀 Quick Start
-
-### For Saveetha Students
-1. **Fork this repository**
-2. **Set up GitHub Secrets** in your fork:
-   - `TELEGRAM_TOKEN` - Get from [@BotFather](https://t.me/BotFather)
-   - `TELEGRAM_CHAT_ID` - Get from [@userinfobot](https://t.me/userinfobot)
-   - `ARMS_USERNAME` - Your student ID (e.g., `1925110**`)
-   - `ARMS_PASSWORD` - Your ARMS portal password
-3. **Enable GitHub Actions** in your repository settings
-4. **That's it!** The bot will monitor your results every 15 minutes
-
-### Local Development
-1. Clone the repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Copy `.env.example` to `.env` and fill in your credentials
-4. Run: `python monitor_selenium.py`
-
-
-
-\## ⚙️ Configuration
-
-### Environment Variables
-Create a `.env` file locally (or use GitHub Secrets for production):
+Create a `.env` file with:
 
 ```bash
-# ARMS Portal Credentials
-ARMS_USERNAME=your_student_id
-ARMS_PASSWORD=your_arms_password
-
-# Telegram Bot Settings
+VSTUDY_URL=https://vstudy.saveetha.com/
+VSTUDY_PROFILE_DIR=./vstudy_chrome_profile
 TELEGRAM_TOKEN=your_bot_token_here
 TELEGRAM_CHAT_ID=your_chat_id_here
+DATABASE_NAME=./results.db
 ```
 
-### Setting up Telegram Bot
-1. Message [@BotFather](https://t.me/BotFather) on Telegram
-2. Send `/newbot` and follow instructions
-3. Copy the bot token
-4. Message your bot to start a chat
-5. Get your chat ID from [@userinfobot](https://t.me/userinfobot)
+## Project structure
 
-## 🚨 Important Notes
+```text
+.
+├── config.py
+├── monitor.py
+├── monitor_selenium.py
+├── vstudy_scraper.py
+├── results_db.py
+├── telegram_notifier.py
+├── requirements.txt
+├── .env.example
+├── README.md
+├── results.db
+├── vstudy_chrome_profile/
+└── test_vstudy_login.py
+```
 
-- **Security**: Never commit your `.env` file or share credentials
-- **Frequency**: GitHub Actions runs every 15 minutes (can't be more frequent)
-- **Database**: `results.db` is committed to track results across runs
-- **Compatibility**: Works specifically for Saveetha ARMS Portal
+## How it works
 
-## 🤝 Contributing
+1. Open the VStudy portal using the configured persistent Chrome profile.
+2. Navigate to the student profile page.
+3. Click View Details.
+4. Select the All 17 filter in Student Progress.
+5. Parse the course table and collect unique course codes.
+6. Store the results in SQLite and notify only when a new course code is seen.
 
-Feel free to:
-- 🐛 Report issues
-- 💡 Suggest features
-- 🔧 Submit pull requests
-- ⭐ Star the repository
+## Run locally
 
-## 📄 License
+```bash
+pip install -r requirements.txt
+python monitor.py
+```
 
-This project is open source. Feel free to fork and modify for your educational institution.
+## Deploy on Railway
 
-## 👨‍💻 Developer
+Railway can run the monitor without human clicks after an authenticated Chrome profile has been prepared. Google login, CAPTCHA, and account verification cannot be completed automatically by this project.
 
-**Manoj M**
-Saveetha School of Engineering, SIMATS
+1. Build and deploy this repository using the included `Dockerfile`.
+2. Add a Railway volume mounted at `/data`.
+3. Set these variables in Railway:
 
----
+```text
+HEADLESS=true
+UNATTENDED=true
+RUN_FOREVER=true
+VSTUDY_PROFILE_DIR=/data/vstudy_chrome_profile
+DATABASE_NAME=/data/results.db
+CHECK_INTERVAL=300
+SAVE_DEBUG_ARTIFACTS=false
+VSTUDY_URL=https://vstudy.saveetha.com/
+TELEGRAM_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
+```
 
-> 💡 **Tip**: If you're from a different institution, you can adapt the scraper for your portal!
-# Updated 04/04/2026 10:06:06
-# Updated 04/04/2026 10:22:51
+Before unattended deployment, copy an already authenticated Chrome profile into the persistent volume at `/data/vstudy_chrome_profile`. If the Google session expires, the profile must be re-authenticated and the volume updated. Without that profile, the service fails clearly instead of waiting for a human prompt.
+
+When re-authentication is needed, the monitor prints `[AUTH REQUIRED]` in Railway logs and sends one Telegram warning. It keeps retrying at `CHECK_INTERVAL` and sends no duplicate warning until authentication works again. This lets you know exactly why no new results are being collected.
+
+The warning state is stored in the SQLite `monitor_state` table, so a Railway restart does not cause repeated alerts. A successful scrape resets the state and allows a new warning if authentication expires later. Set `SAVE_DEBUG_ARTIFACTS=true` only when troubleshooting; it is disabled by default for live deployments.
+
+There is no reliable browser-only way to guarantee zero human interaction forever with Google login. A truly zero-interaction design would require VStudy to provide an official API or a long-lived service credential. Do not deploy Google passwords or CAPTCHA workarounds in Railway.
+
+For a one-time local check, use `python test_vstudy_login.py`. A successful check prints `Found ... course(s)` and exits with code 0; an authentication or scraping failure exits with code 1.
+
+## Notes
+
+- The project intentionally keeps the persistent browser profile for authenticated VStudy access.
+- Telegram notifications remain optional and are enabled only when the token and chat ID are configured.
+- The SQLite database preserves the notification history and deduplicates by course code.
